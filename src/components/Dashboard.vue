@@ -67,6 +67,8 @@
           Get Response
           </v-btn></td>
           <td>{{row.item.url}}</td>
+          <td>{{ row.item.created_at }}</td>
+          <td>{{ row.item.updated_at }}</td>
         </tr>
       </template>
     </v-data-table>
@@ -80,7 +82,7 @@
           </v-card-title>
 
           <v-card-text>
-            <v-list dense>
+            <v-list dense v-if="!extra_data_is_string">
             <v-list-item v-for="(item, name) in infoDialog" :key="name">
               <v-list-item-content>
                 {{ name }}:
@@ -91,6 +93,8 @@
               </v-list-item-content>
             </v-list-item>
             </v-list>
+
+            <p v-else>{{infoDialog}}</p>
           </v-card-text>
 
           <v-divider></v-divider>
@@ -124,6 +128,7 @@ export default {
       search: '',
       logs: [],
       overlay: false,
+      extra_data_is_string: false,
       dialog: false,
       infoDialog: {},
       categoriesLogs: [],
@@ -143,6 +148,8 @@ export default {
         { text: 'Extra-data', value: 'extra_data' },
         { text: 'Response', value: 'response' },
         { text: 'URL', value: 'url' },
+        { text: 'Creación', value: 'created_at' },
+        { text: 'Actualización', value: 'created_at' },
       ];
     },
   },
@@ -165,8 +172,6 @@ export default {
       this.overlay = true;
       this.logs = await logsService.getLogs(this.date);
       this.overlay = false;
-      console.log(this.logs);
-      /* this.originalTest = JSON.parse(JSON.stringify(this.test)); */
     },
 
     getUserData() {
@@ -174,11 +179,17 @@ export default {
     },
 
     onButtonClick(item) {
+      console.log(typeof item);
+      if (typeof item === 'string') {
+        this.extra_data_is_string = true;
+        this.infoDialog = item;
+        this.dialog = true;
+        return;
+      }
+      this.extra_data_is_string = false;
       this.dialog = true;
       this.categoriesLogs = Object.keys(JSON.parse(item));
-      console.log(this.categoriesLogs);
       this.infoDialog = JSON.parse(item);
-      console.log(this.infoDialog);
     },
   },
 };
